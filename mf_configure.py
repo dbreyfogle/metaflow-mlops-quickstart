@@ -1,22 +1,21 @@
-import boto3
 import argparse
 import json
 import os
 
+import boto3
+
 MF_CONFIG_VARS_TO_CFN_OUTPUT_KEYS = {
     "METAFLOW_BATCH_JOB_QUEUE": "BatchJobQueueArn",
-    # 'METAFLOW_SERVICE_INTERNAL_URL': 'InternalServiceUrl',
     "METAFLOW_SFN_DYNAMO_DB_TABLE": "DDBTableName",
     "METAFLOW_DATATOOLS_S3ROOT": "MetaflowDataToolsS3Url",
     "METAFLOW_SFN_IAM_ROLE": "StepFunctionsRoleArn",
-    "METAFLOW_SERVICE_URL": "ServiceUrl",
     "METAFLOW_DATASTORE_SYSROOT_S3": "MetaflowDataStoreS3Url",
     "METAFLOW_ECS_S3_ACCESS_IAM_ROLE": "ECSJobRoleForBatchJobs",
     "METAFLOW_EVENTS_SFN_ACCESS_IAM_ROLE": "EventBridgeRoleArn",
 }
 EXTRA_ARGS = {
     "METAFLOW_DEFAULT_DATASTORE": "s3",
-    "METAFLOW_DEFAULT_METADATA": "service",
+    "METAFLOW_DEFAULT_METADATA": "local",
 }
 
 
@@ -35,7 +34,7 @@ def fetch_config_vars(stack_name: str) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--stack_name", type=str, required=True)
+    parser.add_argument("-s", "--stack-name", type=str, required=True)
     parser.add_argument(
         "-p", "--profile", type=str, default="default", help="Metaflow profile name"
     )
