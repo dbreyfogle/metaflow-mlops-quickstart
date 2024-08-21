@@ -36,23 +36,39 @@ Parameters:
     Type: CommaDelimitedList
     Default: "m7i.2xlarge,m7i.4xlarge,m7i.8xlarge,m7i.12xlarge,m7i.16xlarge"
     Description: "The instance types for the compute environment as a comma-separated list"
+  MaxVCPUBatchGPU:
+    Type: Number
+    Default: 64
+    MinValue: 0
+    MaxValue: 64
+    Description: "Maximum VCPUs for GPU Batch Compute Environment"
+  MinVCPUBatchGPU:
+    Type: Number
+    Default: 0
+    MinValue: 0
+    MaxValue: 64
+    Description: "Minimum VCPUs for GPU Batch Compute Environment"
+  DesiredVCPUBatchGPU:
+    Type: Number
+    Default: 8
+    MinValue: 0
+    MaxValue: 64
+    Description: "Desired Starting VCPUs for GPU Batch Compute Environment"
+  ComputeEnvInstanceTypesGPU:
+    Type: CommaDelimitedList
+    Default: "g6.2xlarge,g6.4xlarge,g6.8xlarge"
+    Description: "The instance types for the GPU compute environment as a comma-separated list"
   CustomRole:
     Type: String
     Default: "false"
     AllowedValues: ["false", "true"]
     Description: "Enable custom role with restricted permissions?"
-  BatchType:
-    Type: String
-    Default: "ec2"
-    AllowedValues: ["ec2", "fargate"]
-    Description: "AWS Batch Compute Type"
   AdditionalWorkerPolicyArn:
     Type: String
     Default: ""
     Description: "Additional IAM Policy ARN to attach to Batch Compute Environment (leave empty, unless you know what you are doing)"
 Conditions:
   EnableRole: !Equals [!Ref CustomRole, "true"]
-  EnableFargateOnBatch: !Equals [!Ref BatchType, "fargate"]
   EnableAddtionalWorkerPolicy:
     !Not [!Equals [!Ref AdditionalWorkerPolicyArn, ""]]
 Resources:
@@ -207,6 +223,7 @@ Resources:
                   - "batch:SubmitJob"
                 Resource:
                   - !Ref "JobQueue"
+                  - !Ref "JobQueueGPU"
                   - !Sub arn:aws:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
         - PolicyName: CustomS3ListAccess
           PolicyDocument:
@@ -308,6 +325,7 @@ Resources:
               - "batch:SubmitJob"
             Resource:
               - !Ref "JobQueue"
+              - !Ref "JobQueueGPU"
               - !Sub arn:aws:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
           - Sid: BucketAccess
             Effect: Allow
@@ -402,6 +420,7 @@ Resources:
                   - "batch:SubmitJob"
                 Resource:
                   - !Ref "JobQueue"
+                  - !Ref "JobQueueGPU"
                   - !Sub arn:aws:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
         - PolicyName: CustomS3Access
           PolicyDocument:
@@ -661,26 +680,14 @@ Resources:
         MaxvCpus: !Ref MaxVCPUBatch
         SecurityGroupIds:
           - !GetAtt VPC.DefaultSecurityGroup
-        Type: !If [EnableFargateOnBatch, "FARGATE", "EC2"]
+        Type: "EC2"
         Subnets:
           - !Ref Subnet1
           - !Ref Subnet2
-        MinvCpus:
-          !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref MinVCPUBatch]
-        InstanceRole:
-          !If [
-            EnableFargateOnBatch,
-            !Ref AWS::NoValue,
-            !GetAtt "ECSInstanceProfile.Arn",
-          ]
-        InstanceTypes:
-          !If [
-            EnableFargateOnBatch,
-            !Ref AWS::NoValue,
-            !Ref ComputeEnvInstanceTypes,
-          ]
-        DesiredvCpus:
-          !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref DesiredVCPUBatch]
+        MinvCpus: !Ref MinVCPUBatch
+        InstanceRole: !GetAtt "ECSInstanceProfile.Arn"
+        InstanceTypes: !Ref ComputeEnvInstanceTypes
+        DesiredvCpus: !Ref DesiredVCPUBatch
       State: ENABLED
   JobQueue:
     DependsOn: ComputeEnvironment
@@ -691,7 +698,35 @@ Resources:
           ComputeEnvironment: !Ref ComputeEnvironment
       State: ENABLED
       Priority: 1
-      JobQueueName: !Join ["-", ["job-queue", !Ref "AWS::StackName"]]
+      JobQueueName: !Sub ${AWS::StackName}-cpu
+  ComputeEnvironmentGPU:
+    Type: AWS::Batch::ComputeEnvironment
+    Properties:
+      Type: MANAGED
+      ServiceRole: !GetAtt "BatchExecutionRole.Arn"
+      ComputeResources:
+        MaxvCpus: !Ref MaxVCPUBatchGPU
+        SecurityGroupIds:
+          - !GetAtt VPC.DefaultSecurityGroup
+        Type: "EC2"
+        Subnets:
+          - !Ref Subnet1
+          - !Ref Subnet2
+        MinvCpus: !Ref MinVCPUBatchGPU
+        InstanceRole: !GetAtt "ECSInstanceProfile.Arn"
+        InstanceTypes: !Ref ComputeEnvInstanceTypesGPU
+        DesiredvCpus: !Ref DesiredVCPUBatchGPU
+      State: ENABLED
+  JobQueueGPU:
+    DependsOn: ComputeEnvironmentGPU
+    Type: AWS::Batch::JobQueue
+    Properties:
+      ComputeEnvironmentOrder:
+        - Order: 1
+          ComputeEnvironment: !Ref ComputeEnvironmentGPU
+      State: ENABLED
+      Priority: 1
+      JobQueueName: !Sub ${AWS::StackName}-gpu
   StepFunctionsStateDDB:
     Type: AWS::DynamoDB::Table
     Properties:
