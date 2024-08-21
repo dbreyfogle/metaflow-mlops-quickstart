@@ -60,7 +60,7 @@ Parameters:
     Description: "The instance types for the GPU compute environment as a comma-separated list"
   CustomRole:
     Type: String
-    Default: "false"
+    Default: "true"
     AllowedValues: ["false", "true"]
     Description: "Enable custom role with restricted permissions?"
   AdditionalWorkerPolicyArn:
@@ -185,7 +185,7 @@ Resources:
                   - "cloudformation:*Stack"
                   - "cloudformation:*ChangeSet"
                 Resource:
-                  - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}-*"
+                  - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"
               - Effect: "Allow"
                 Action:
                   - "s3:*Object"
@@ -259,7 +259,10 @@ Resources:
                   - "states:CreateStateMachine"
                   - "states:ListExecutions"
                   - "states:StopExecution"
-                Resource: !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
+                  - "states:DeleteStateMachine"
+                Resource:
+                  - !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
+                  - !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:*"
         - PolicyName: AllowEventBridge
           PolicyDocument:
             Version: "2012-10-17"
@@ -268,7 +271,9 @@ Resources:
                 Effect: Allow
                 Action:
                   - "events:PutTargets"
+                  - "events:RemoveTargets"
                   - "events:DisableRule"
+                  - "events:DeleteRule"
                 Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/*"
               - Sid: PutRule
                 Effect: Allow
@@ -291,7 +296,7 @@ Resources:
               - "cloudformation:*Stack"
               - "cloudformation:*ChangeSet"
             Resource:
-              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}-*"
+              - !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"
           - Effect: "Allow"
             Action:
               - "s3:*Object"
@@ -349,12 +354,17 @@ Resources:
               - "states:CreateStateMachine"
               - "states:ListExecutions"
               - "states:StopExecution"
-            Resource: !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
+              - "states:DeleteStateMachine"
+            Resource:
+              - !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
+              - !Sub "arn:aws:states:${AWS::Region}:${AWS::AccountId}:execution:*"
           - Sid: RuleMaintenance
             Effect: Allow
             Action:
               - "events:PutTargets"
+              - "events:RemoveTargets"
               - "events:DisableRule"
+              - "events:DeleteRule"
             Resource: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/*"
           - Sid: PutRule
             Effect: Allow
