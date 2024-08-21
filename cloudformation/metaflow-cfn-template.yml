@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Stack for complete deployment of Metaflow (last-updated-date 10/26/2021)
+Description: Stack for a low overhead deployment of Metaflow (last-updated-date 2024-08-21)
 
 Parameters:
   VPCCidr:
