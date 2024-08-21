@@ -1,98 +1,98 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: Stack for complete deployment of Metaflow (last-updated-date 10/26/2021)
 
 Parameters:
   SagemakerInstance:
     Type: String
     Default: ml.t2.xlarge
-    AllowedValues: ['ml.t2.large','ml.t2.xlarge','ml.t2.2xlarge']
-    Description: 'Instance type for Sagemaker Notebook.'
+    AllowedValues: ["ml.t2.large", "ml.t2.xlarge", "ml.t2.2xlarge"]
+    Description: "Instance type for Sagemaker Notebook."
   VPCCidr:
     Type: String
     Default: 10.20.0.0/16
-    Description: 'CIDR for the Metaflow VPC'
+    Description: "CIDR for the Metaflow VPC"
   Subnet1Cidr:
     Type: String
     Default: 10.20.0.0/24
-    Description: 'CIDR for Metaflow VPC Subnet 1'
+    Description: "CIDR for Metaflow VPC Subnet 1"
   Subnet2Cidr:
     Type: String
     Default: 10.20.1.0/24
-    Description: 'CIDR for Metaflow VPC Subnet 2'
+    Description: "CIDR for Metaflow VPC Subnet 2"
   MaxVCPUBatch:
     Type: Number
     Default: 64
     MinValue: 16
     MaxValue: 256
-    Description: 'Maximum VCPUs for Batch Compute Environment [16-256]. You can change the upper limit by editing the Cloudformation template.'
+    Description: "Maximum VCPUs for Batch Compute Environment [16-256]. You can change the upper limit by editing the Cloudformation template."
   MinVCPUBatch:
     Type: Number
     Default: 8
     MinValue: 0
     MaxValue: 16
-    AllowedValues: [0,2,4,8,16]
-    Description: 'Minimum VCPUs for Batch Compute Environment [0-16] for EC2 Batch Compute Environment (ignored for Fargate)'
+    AllowedValues: [0, 2, 4, 8, 16]
+    Description: "Minimum VCPUs for Batch Compute Environment [0-16] for EC2 Batch Compute Environment (ignored for Fargate)"
   DesiredVCPUBatch:
     Type: Number
     Default: 8
     MinValue: 0
     MaxValue: 16
-    AllowedValues: [0,2,4,8,16]
-    Description: 'Desired Starting VCPUs for Batch Compute Environment [0-16] for EC2 Batch Compute Environment (ignored for Fargate)'
+    AllowedValues: [0, 2, 4, 8, 16]
+    Description: "Desired Starting VCPUs for Batch Compute Environment [0-16] for EC2 Batch Compute Environment (ignored for Fargate)"
   ComputeEnvInstanceTypes:
     Type: CommaDelimitedList
     Default: "c4.large,c4.xlarge,c4.2xlarge,c4.4xlarge,c4.8xlarge"
     Description: "The instance types for the compute environment as a comma-separated list"
   CustomRole:
     Type: String
-    Default: 'false'
-    AllowedValues: ['false', 'true']
-    Description: 'Enable custom role with restricted permissions?'
+    Default: "false"
+    AllowedValues: ["false", "true"]
+    Description: "Enable custom role with restricted permissions?"
   APIBasicAuth:
     Type: String
-    Default: 'true'
-    AllowedValues: ['false', 'true']
-    Description: 'Enable basic auth for API Gateway? (requires you to export the API key from API Gateway console)'
+    Default: "true"
+    AllowedValues: ["false", "true"]
+    Description: "Enable basic auth for API Gateway? (requires you to export the API key from API Gateway console)"
   EnableSagemaker:
     Type: String
-    Default: 'true'
-    AllowedValues: ['false', 'true']
-    Description: 'Enable Sagemaker Notebooks'
+    Default: "true"
+    AllowedValues: ["false", "true"]
+    Description: "Enable Sagemaker Notebooks"
   BatchType:
     Type: String
-    Default: 'ec2'
-    AllowedValues: ['ec2', 'fargate']
-    Description: 'AWS Batch Compute Type'
+    Default: "ec2"
+    AllowedValues: ["ec2", "fargate"]
+    Description: "AWS Batch Compute Type"
   IAMPartition:
     Type: String
-    Default: 'aws'
-    AllowedValues: ['aws', 'aws-us-gov']
-    Description: 'IAM Partition (Select aws-us-gov for AWS GovCloud, otherwise leave as is)'
+    Default: "aws"
+    AllowedValues: ["aws", "aws-us-gov"]
+    Description: "IAM Partition (Select aws-us-gov for AWS GovCloud, otherwise leave as is)"
   AdditionalWorkerPolicyArn:
     Type: String
-    Default: ''
-    Description: 'Additional IAM Policy ARN to attach to Batch Compute Environment (leave empty, unless you know what you are doing)'
+    Default: ""
+    Description: "Additional IAM Policy ARN to attach to Batch Compute Environment (leave empty, unless you know what you are doing)"
   EnableUI:
     Type: String
-    Default: 'false'
-    AllowedValues: ['false', 'true']
-    Description: 'Enable Metaflow UI. Make sure to specify PublicDomainName and CertificateArn if you do.'
+    Default: "false"
+    AllowedValues: ["false", "true"]
+    Description: "Enable Metaflow UI. Make sure to specify PublicDomainName and CertificateArn if you do."
   PublicDomainName:
-    Type: 'String'
-    Default: ''
-    Description: 'The custom domain name for UI (e.g., ui.outerbounds.co). Has to match the certificate. Required if UI is enabled.'
+    Type: "String"
+    Default: ""
+    Description: "The custom domain name for UI (e.g., ui.outerbounds.co). Has to match the certificate. Required if UI is enabled."
   CertificateArn:
-    Default: ''
-    Type: 'String'
-    Description: 'The ARN of a ACM certificate valid for the custom domain name. Required if UI is enabled.'
+    Default: ""
+    Type: "String"
+    Description: "The ARN of a ACM certificate valid for the custom domain name. Required if UI is enabled."
 Mappings:
   ServiceInfo:
     StackName:
-      value: 'metaflow-infrastructure'
+      value: "metaflow-infrastructure"
     ServiceName:
-      value: 'metadata-service-v2'
+      value: "metadata-service-v2"
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: "netflixoss/metaflow_metadata_service:v2.3.5"
     ContainerPort:
       value: 8080
     ContainerCpu:
@@ -100,7 +100,7 @@ Mappings:
     ContainerMemory:
       value: 1024
     Path:
-      value: '*'
+      value: "*"
     Priority:
       value: 1
     DesiredCount:
@@ -109,11 +109,11 @@ Mappings:
       value: ""
   ServiceInfoUIService:
     StackName:
-      value: 'metaflow-infrastructure'
+      value: "metaflow-infrastructure"
     ServiceName:
-      value: 'metaflow-ui-service'
+      value: "metaflow-ui-service"
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: "netflixoss/metaflow_metadata_service:v2.3.5"
     ContainerPort:
       value: 8083
     ContainerCpu:
@@ -121,7 +121,7 @@ Mappings:
     ContainerMemory:
       value: 16384
     Path:
-      value: '*'
+      value: "*"
     Priority:
       value: 1
     DesiredCount:
@@ -130,11 +130,11 @@ Mappings:
       value: ""
   ServiceInfoUIStatic:
     StackName:
-      value: 'metaflow-infrastructure'
+      value: "metaflow-infrastructure"
     ServiceName:
-      value: 'metadata-ui-static'
+      value: "metadata-ui-static"
     ImageUrl:
-      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.2.4'
+      value: "public.ecr.aws/outerbounds/metaflow_ui:v1.2.4"
     ContainerPort:
       value: 3000
     ContainerCpu:
@@ -142,7 +142,7 @@ Mappings:
     ContainerMemory:
       value: 1024
     Path:
-      value: '*'
+      value: "*"
     Priority:
       value: 1
     DesiredCount:
@@ -150,13 +150,14 @@ Mappings:
     Role:
       value: ""
 Conditions:
-  EnableAuth: !Equals [ !Ref APIBasicAuth, 'true']
-  EnableRole: !Equals [ !Ref CustomRole, 'true']
-  EnableFargateOnBatch: !Equals [ !Ref BatchType, 'fargate']
-  EnableSagemaker: !Equals [ !Ref EnableSagemaker, 'true']
-  IsGov: !Equals [ !Ref IAMPartition, 'aws-us-gov']
-  EnableAddtionalWorkerPolicy: !Not [ !Equals [ !Ref AdditionalWorkerPolicyArn, ''] ]
-  EnableUI: !Equals [ !Ref EnableUI, 'true']
+  EnableAuth: !Equals [!Ref APIBasicAuth, "true"]
+  EnableRole: !Equals [!Ref CustomRole, "true"]
+  EnableFargateOnBatch: !Equals [!Ref BatchType, "fargate"]
+  EnableSagemaker: !Equals [!Ref EnableSagemaker, "true"]
+  IsGov: !Equals [!Ref IAMPartition, "aws-us-gov"]
+  EnableAddtionalWorkerPolicy:
+    !Not [!Equals [!Ref AdditionalWorkerPolicyArn, ""]]
+  EnableUI: !Equals [!Ref EnableUI, "true"]
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -168,20 +169,20 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
-         Fn::Select:
-         - 0
-         - Fn::GetAZs: {Ref: 'AWS::Region'}
-      VpcId: !Ref 'VPC'
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: { Ref: "AWS::Region" }
+      VpcId: !Ref "VPC"
       CidrBlock: !Ref Subnet1Cidr
       MapPublicIpOnLaunch: true
   Subnet2:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone:
-         Fn::Select:
-         - 1
-         - Fn::GetAZs: {Ref: 'AWS::Region'}
-      VpcId: !Ref 'VPC'
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: { Ref: "AWS::Region" }
+      VpcId: !Ref "VPC"
       CidrBlock: !Ref Subnet2Cidr
       MapPublicIpOnLaunch: true
   InternetGateway:
@@ -189,19 +190,19 @@ Resources:
   GatewayAttachement:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref 'VPC'
-      InternetGatewayId: !Ref 'InternetGateway'
+      VpcId: !Ref "VPC"
+      InternetGatewayId: !Ref "InternetGateway"
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   DefaultGateway:
     Type: AWS::EC2::Route
     DependsOn: GatewayAttachement
     Properties:
-      RouteTableId: !Ref 'PublicRouteTable'
-      DestinationCidrBlock: '0.0.0.0/0'
-      GatewayId: !Ref 'InternetGateway'
+      RouteTableId: !Ref "PublicRouteTable"
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref "InternetGateway"
   Subnet1RTA:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -222,40 +223,40 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security Group for Fargate
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   NLBIngressRule:
-   Type: 'AWS::EC2::SecurityGroupIngress'
-   Properties:
-      Description: 'Allow API Calls Internally'
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      Description: "Allow API Calls Internally"
       GroupId: !Ref FargateSecurityGroup
       IpProtocol: tcp
       FromPort: 8080
       ToPort: 8080
-      CidrIp: !GetAtt 'VPC.CidrBlock'
+      CidrIp: !GetAtt "VPC.CidrBlock"
   NLBIngressRuleDBMigrate:
-    Type: 'AWS::EC2::SecurityGroupIngress'
+    Type: "AWS::EC2::SecurityGroupIngress"
     Properties:
-        Description: 'Allow API Calls Internally'
-        GroupId: !Ref FargateSecurityGroup
-        IpProtocol: tcp
-        FromPort: 8082
-        ToPort: 8082
-        CidrIp: !GetAtt 'VPC.CidrBlock'
+      Description: "Allow API Calls Internally"
+      GroupId: !Ref FargateSecurityGroup
+      IpProtocol: tcp
+      FromPort: 8082
+      ToPort: 8082
+      CidrIp: !GetAtt "VPC.CidrBlock"
   FargateInternalRule:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Internal Communication
-      GroupId: !Ref 'FargateSecurityGroup'
+      GroupId: !Ref "FargateSecurityGroup"
       IpProtocol: -1
-      SourceSecurityGroupId: !Ref 'FargateSecurityGroup'
+      SourceSecurityGroupId: !Ref "FargateSecurityGroup"
   FargateAlbRule:
     Type: AWS::EC2::SecurityGroupIngress
     Condition: EnableUI
     Properties:
       Description: Internal Communication
-      GroupId: !Ref 'FargateSecurityGroup'
+      GroupId: !Ref "FargateSecurityGroup"
       IpProtocol: -1
-      SourceSecurityGroupId: !Ref 'LoadBalancerSecurityGroupUI'
+      SourceSecurityGroupId: !Ref "LoadBalancerSecurityGroupUI"
   NLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -270,9 +271,9 @@ Resources:
       - NLB
     Properties:
       DefaultActions:
-        - TargetGroupArn: !Ref 'NLBTargetGroup'
-          Type: 'forward'
-      LoadBalancerArn: !Ref 'NLB'
+        - TargetGroupArn: !Ref "NLBTargetGroup"
+          Type: "forward"
+      LoadBalancerArn: !Ref "NLB"
       Port: 80
       Protocol: TCP
   NLBListenerDBMigrate:
@@ -281,9 +282,9 @@ Resources:
       - NLB
     Properties:
       DefaultActions:
-        - TargetGroupArn: !Ref 'NLBTargetGroupDBMigrate'
-          Type: 'forward'
-      LoadBalancerArn: !Ref 'NLB'
+        - TargetGroupArn: !Ref "NLBTargetGroupDBMigrate"
+          Type: "forward"
+      LoadBalancerArn: !Ref "NLB"
       Port: 8082
       Protocol: TCP
   ECSRole:
@@ -291,58 +292,58 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service: [ecs.amazonaws.com]
-          Action: ['sts:AssumeRole']
+          - Effect: Allow
+            Principal:
+              Service: [ecs.amazonaws.com]
+            Action: ["sts:AssumeRole"]
       Path: /
       Policies:
-      - PolicyName: ecs-service
-        PolicyDocument:
-          Statement:
-          - Effect: Allow
-            Action:
-              - 'ec2:AttachNetworkInterface'
-              - 'ec2:CreateNetworkInterface'
-              - 'ec2:CreateNetworkInterfacePermission'
-              - 'ec2:DeleteNetworkInterface'
-              - 'ec2:DeleteNetworkInterfacePermission'
-              - 'ec2:Describe*'
-              - 'ec2:DetachNetworkInterface'
-              - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
-              - 'elasticloadbalancing:DeregisterTargets'
-              - 'elasticloadbalancing:Describe*'
-              - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
-              - 'elasticloadbalancing:RegisterTargets'
-            Resource: '*'
+        - PolicyName: ecs-service
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ec2:AttachNetworkInterface"
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:CreateNetworkInterfacePermission"
+                  - "ec2:DeleteNetworkInterface"
+                  - "ec2:DeleteNetworkInterfacePermission"
+                  - "ec2:Describe*"
+                  - "ec2:DetachNetworkInterface"
+                  - "elasticloadbalancing:DeregisterInstancesFromLoadBalancer"
+                  - "elasticloadbalancing:DeregisterTargets"
+                  - "elasticloadbalancing:Describe*"
+                  - "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+                  - "elasticloadbalancing:RegisterTargets"
+                Resource: "*"
   ECSTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service: [ecs-tasks.amazonaws.com]
-          Action: ['sts:AssumeRole']
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ["sts:AssumeRole"]
       Path: /
       Policies:
         - PolicyName: AmazonECSTaskExecutionRolePolicy
           PolicyDocument:
             Statement:
-            - Effect: Allow
-              Action:
-                - 'ecr:GetAuthorizationToken'
-                - 'ecr:BatchCheckLayerAvailability'
-                - 'ecr:GetDownloadUrlForLayer'
-                - 'ecr:BatchGetImage'
-                - 'logs:CreateLogStream'
-                - 'logs:PutLogEvents'
-              Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "ecr:GetAuthorizationToken"
+                  - "ecr:BatchCheckLayerAvailability"
+                  - "ecr:GetDownloadUrlForLayer"
+                  - "ecr:BatchGetImage"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
   MetadataSvcECSTaskRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -354,26 +355,26 @@ Resources:
       Policies:
         - PolicyName: CustomS3Batch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Sid: ObjectAccessMetadataService
                 Effect: Allow
                 Action:
                   - s3:GetObject
-                Resource: !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+                Resource: !Join ["", [!GetAtt "MetaflowS3Bucket.Arn", "/*"]]
               - Sid: ObjectAccessMetadataServiceNonExistentKeys
                 Effect: Allow
                 Action:
                   - s3:ListBucket
-                Resource: !GetAtt 'MetaflowS3Bucket.Arn'
+                Resource: !GetAtt "MetaflowS3Bucket.Arn"
         - PolicyName: DenyPresignedBatch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: DenyPresignedBatch
               Effect: Deny
               Action: s3:*
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringNotEquals:
                   s3:authType: REST-HEADER
@@ -388,86 +389,113 @@ Resources:
     Properties:
       AssumeRolePolicyDocument:
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-              - 'ec2.amazonaws.com'
-          Action:
-            - 'sts:AssumeRole'
+          - Effect: Allow
+            Principal:
+              Service:
+                - "ec2.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
       Path: /
       ManagedPolicyArns:
         - !Sub arn:${IAMPartition}:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !FindInMap ['ServiceInfo', 'ServiceName', 'value']
-      Cpu: !FindInMap ['ServiceInfo', 'ContainerCpu', 'value']
-      Memory: !FindInMap ['ServiceInfo', 'ContainerMemory', 'value']
+      Family: !FindInMap ["ServiceInfo", "ServiceName", "value"]
+      Cpu: !FindInMap ["ServiceInfo", "ContainerCpu", "value"]
+      Memory: !FindInMap ["ServiceInfo", "ContainerMemory", "value"]
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
-      TaskRoleArn: !GetAtt 'MetadataSvcECSTaskRole.Arn'
+      ExecutionRoleArn: !Ref "ECSTaskExecutionRole"
+      TaskRoleArn: !GetAtt "MetadataSvcECSTaskRole.Arn"
       ContainerDefinitions:
-        - Name: !FindInMap ['ServiceInfo', 'ServiceName', 'value']
+        - Name: !FindInMap ["ServiceInfo", "ServiceName", "value"]
           Environment:
             - Name: "MF_METADATA_DB_HOST"
-              Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
+              Value: !GetAtt "RDSMasterInstance.Endpoint.Address"
             - Name: "MF_METADATA_DB_PORT"
               Value: "5432"
             - Name: "MF_METADATA_DB_USER"
               Value: "master"
             - Name: "MF_METADATA_DB_PSWD"
-              Value: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:password}}' ]]
+              Value:
+                !Join [
+                  "",
+                  [
+                    "{{resolve:secretsmanager:",
+                    !Ref MyRDSSecret,
+                    ":SecretString:password}}",
+                  ],
+                ]
             - Name: "MF_METADATA_DB_NAME"
               Value: "metaflow"
-          Cpu: !FindInMap ['ServiceInfo', 'ContainerCpu', 'value']
-          Memory: !FindInMap ['ServiceInfo', 'ContainerMemory', 'value']
-          Image: !FindInMap ['ServiceInfo', 'ImageUrl', 'value']
+          Cpu: !FindInMap ["ServiceInfo", "ContainerCpu", "value"]
+          Memory: !FindInMap ["ServiceInfo", "ContainerMemory", "value"]
+          Image: !FindInMap ["ServiceInfo", "ImageUrl", "value"]
           PortMappings:
-            - ContainerPort: !FindInMap ['ServiceInfo', 'ContainerPort', 'value']
+            - ContainerPort:
+                !FindInMap ["ServiceInfo", "ContainerPort", "value"]
             - ContainerPort: 8082
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '-', !FindInMap ['ServiceInfo', 'ServiceName', 'value']]]
-              awslogs-region: !Ref 'AWS::Region'
-              awslogs-stream-prefix: 'ecs'
+              awslogs-group:
+                !Join [
+                  "",
+                  [
+                    "/ecs/",
+                    !Ref "AWS::StackName",
+                    "-",
+                    !FindInMap ["ServiceInfo", "ServiceName", "value"],
+                  ],
+                ]
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: "ecs"
   MetadataServiceLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '-', !FindInMap ['ServiceInfo', 'ServiceName', 'value']]]
+      LogGroupName:
+        !Join [
+          "",
+          [
+            "/ecs/",
+            !Ref "AWS::StackName",
+            "-",
+            !FindInMap ["ServiceInfo", "ServiceName", "value"],
+          ],
+        ]
   ECSFargateService:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: !FindInMap ['ServiceInfo', 'ServiceName', 'value']
-      Cluster: !Ref 'ECSCluster'
+      ServiceName: !FindInMap ["ServiceInfo", "ServiceName", "value"]
+      Cluster: !Ref "ECSCluster"
       LaunchType: FARGATE
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 75
-      DesiredCount: !FindInMap ['ServiceInfo', 'DesiredCount', 'value']
+      DesiredCount: !FindInMap ["ServiceInfo", "DesiredCount", "value"]
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref 'FargateSecurityGroup'
+            - !Ref "FargateSecurityGroup"
           Subnets:
-            - !Ref 'Subnet1'
-            - !Ref 'Subnet2'
-      TaskDefinition: !Ref 'TaskDefinition'
+            - !Ref "Subnet1"
+            - !Ref "Subnet2"
+      TaskDefinition: !Ref "TaskDefinition"
       LoadBalancers:
-        - ContainerName: !FindInMap ['ServiceInfo', 'ServiceName', 'value']
-          ContainerPort: !FindInMap ['ServiceInfo', 'ContainerPort', 'value']
-          TargetGroupArn: !Ref 'NLBTargetGroup'
-        - ContainerName: !FindInMap ['ServiceInfo', 'ServiceName', 'value']
+        - ContainerName: !FindInMap ["ServiceInfo", "ServiceName", "value"]
+          ContainerPort: !FindInMap ["ServiceInfo", "ContainerPort", "value"]
+          TargetGroupArn: !Ref "NLBTargetGroup"
+        - ContainerName: !FindInMap ["ServiceInfo", "ServiceName", "value"]
           ContainerPort: 8082
-          TargetGroupArn: !Ref 'NLBTargetGroupDBMigrate'
+          TargetGroupArn: !Ref "NLBTargetGroupDBMigrate"
   LambdaECSExecuteRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -479,29 +507,51 @@ Resources:
       Policies:
         - PolicyName: Cloudwatch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: CreateLogGroup
-              Effect: Allow
-              Action: logs:CreateLogGroup
-              Resource: !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':*' ] ]
-            - Sid: LogEvents
-              Effect: Allow
-              Action:
-                - logs:PutLogEvents
-                - logs:CreateLogStream
-              Resource: !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':log-group:/aws/lambda/', !Ref 'AWS::StackName', '-migrate-db:*'] ]
+              - Sid: CreateLogGroup
+                Effect: Allow
+                Action: logs:CreateLogGroup
+                Resource:
+                  !Join [
+                    "",
+                    [
+                      !Sub "arn:${IAMPartition}:logs:",
+                      !Ref "AWS::Region",
+                      ":",
+                      !Ref "AWS::AccountId",
+                      ":*",
+                    ],
+                  ]
+              - Sid: LogEvents
+                Effect: Allow
+                Action:
+                  - logs:PutLogEvents
+                  - logs:CreateLogStream
+                Resource:
+                  !Join [
+                    "",
+                    [
+                      !Sub "arn:${IAMPartition}:logs:",
+                      !Ref "AWS::Region",
+                      ":",
+                      !Ref "AWS::AccountId",
+                      ":log-group:/aws/lambda/",
+                      !Ref "AWS::StackName",
+                      "-migrate-db:*",
+                    ],
+                  ]
         - PolicyName: VPC
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: NetInts
-              Effect: Allow
-              Action:
-                - ec2:CreateNetworkInterface
-                - ec2:DescribeNetworkInterfaces
-                - ec2:DeleteNetworkInterface
-              Resource: '*'
+              - Sid: NetInts
+                Effect: Allow
+                Action:
+                  - ec2:CreateNetworkInterface
+                  - ec2:DescribeNetworkInterfaces
+                  - ec2:DeleteNetworkInterface
+                Resource: "*"
   ExecuteDBMigration:
     Type: AWS::Lambda::Function
     Properties:
@@ -510,7 +560,7 @@ Resources:
       Handler: index.handler
       Environment:
         Variables:
-          MD_LB_ADDRESS: !Join ['', ['http://', !GetAtt 'NLB.DNSName', ':8082'] ]
+          MD_LB_ADDRESS: !Join ["", ["http://", !GetAtt "NLB.DNSName", ":8082"]]
       Code:
         ZipFile: |
           import os, json
@@ -534,7 +584,7 @@ Resources:
             print(response)
             return(response)
       Description: Trigger DB Migration
-      FunctionName: !Join ['-', [!Ref 'AWS::StackName', 'migrate-db'] ]
+      FunctionName: !Join ["-", [!Ref "AWS::StackName", "migrate-db"]]
       Timeout: 900
       VpcConfig:
         SecurityGroupIds:
@@ -550,10 +600,10 @@ Resources:
       HealthCheckTimeoutSeconds: 10
       HealthyThresholdCount: 2
       TargetType: ip
-      Port: !FindInMap ['ServiceInfo', 'ContainerPort', 'value']
+      Port: !FindInMap ["ServiceInfo", "ContainerPort", "value"]
       Protocol: TCP
       UnhealthyThresholdCount: 2
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   NLBTargetGroupDBMigrate:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -566,7 +616,7 @@ Resources:
       Port: 8082
       Protocol: TCP
       UnhealthyThresholdCount: 2
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -578,30 +628,46 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security Group for RDS
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   PostgresIngressRule:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref 'RDSSecurityGroup'
-      SourceSecurityGroupId: !Ref 'FargateSecurityGroup'
+      GroupId: !Ref "RDSSecurityGroup"
+      SourceSecurityGroupId: !Ref "FargateSecurityGroup"
       IpProtocol: tcp
       FromPort: 5432
       ToPort: 5432
   RDSMasterInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBName: 'metaflow'
+      DBName: "metaflow"
       AllocatedStorage: 20
-      DBInstanceClass: 'db.t3.small'
-      DeleteAutomatedBackups: 'true'
-      StorageType: 'gp2'
-      Engine: 'postgres'
-      EngineVersion: '11'
-      MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:username}}' ]]
-      MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:password}}' ]]
+      DBInstanceClass: "db.t3.small"
+      DeleteAutomatedBackups: "true"
+      StorageType: "gp2"
+      Engine: "postgres"
+      EngineVersion: "11"
+      MasterUsername:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref MyRDSSecret,
+            ":SecretString:username}}",
+          ],
+        ]
+      MasterUserPassword:
+        !Join [
+          "",
+          [
+            "{{resolve:secretsmanager:",
+            !Ref MyRDSSecret,
+            ":SecretString:password}}",
+          ],
+        ]
       VPCSecurityGroups:
-        - !Ref 'RDSSecurityGroup'
-      DBSubnetGroupName: !Ref 'DBSubnetGroup'
+        - !Ref "RDSSecurityGroup"
+      DBSubnetGroupName: !Ref "DBSubnetGroup"
   MyRDSSecret:
     Type: "AWS::SecretsManager::Secret"
     Properties:
@@ -618,7 +684,7 @@ Resources:
       TargetId: !Ref RDSMasterInstance
       TargetType: AWS::RDS::DBInstance
   MetaflowS3Bucket:
-    Type: 'AWS::S3::Bucket'
+    Type: "AWS::S3::Bucket"
     DeletionPolicy: Retain
     Properties:
       AccessControl: Private
@@ -632,10 +698,10 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
   SagemakerSecurityGroup:
-    Condition: 'EnableSagemaker'
+    Condition: "EnableSagemaker"
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupDescription: 'Security Group for Sagemaker'
+      GroupDescription: "Security Group for Sagemaker"
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - CidrIp: "0.0.0.0/0"
@@ -643,11 +709,11 @@ Resources:
           FromPort: 8080
           ToPort: 8080
   SageMakerExecutionRole:
-    Condition: 'EnableSagemaker'
+    Condition: "EnableSagemaker"
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -659,18 +725,18 @@ Resources:
       Policies:
         - PolicyName: IAM_PASS_ROLE
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: AllowPassRole
               Effect: Allow
               Action: iam:PassRole
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringEquals:
                   iam:PassedToService: sagemaker.amazonaws.com
         - PolicyName: MISC_PERMISSIONS
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: MiscPermissions
               Effect: Allow
@@ -680,37 +746,94 @@ Resources:
                 - ecr:BatchGetImage
                 - ecr:GetAuthorizationToken
                 - ecr:BatchCheckLayerAvailability
-              Resource: '*'
+              Resource: "*"
         - PolicyName: log_roles_policy
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: CreateLogStream
-              Effect: Allow
-              Action:
-                - logs:CreateLogStream
-              Resource:
-                - !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':log-group:/aws/batch/job:log-stream:*' ] ]
-                - !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':log-group:/aws/sagemaker/NotebookInstances:log-stream:*' ] ]
-            - Sid: LogEvents
-              Effect: Allow
-              Action:
-                - logs:PutLogEvents
-                - logs:GetLogEvents
-              Resource:
-                - !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':log-group:/aws/sagemaker/NotebookInstances:log-stream:', !Ref 'AWS::StackName', '-NotebookInstance-', '{{resolve:secretsmanager:', !Ref RandomString, ':SecretString:password}}', '/jupyter.log' ] ]
-                - !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':log-group:/aws/sagemaker/NotebookInstances:log-stream:', !Ref 'AWS::StackName', '-NotebookInstance-', '{{resolve:secretsmanager:', !Ref RandomString, ':SecretString:password}}', '/LifecycleConfigOnCreate' ] ]
-                - !Join [ "", [ !Sub 'arn:${IAMPartition}:logs:', !Ref 'AWS::Region', ':', !Ref 'AWS::AccountId', ':log-group:/aws/batch/job:log-stream:job-queue-' ] ]
-            - Sid: LogGroup
-              Effect: Allow
-              Action:
-                - logs:DescribeLogGroups
-                - logs:DescribeLogStreams
-                - logs:CreateLogGroup
-              Resource: '*'
+              - Sid: CreateLogStream
+                Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                Resource:
+                  - !Join [
+                      "",
+                      [
+                        !Sub "arn:${IAMPartition}:logs:",
+                        !Ref "AWS::Region",
+                        ":",
+                        !Ref "AWS::AccountId",
+                        ":log-group:/aws/batch/job:log-stream:*",
+                      ],
+                    ]
+                  - !Join [
+                      "",
+                      [
+                        !Sub "arn:${IAMPartition}:logs:",
+                        !Ref "AWS::Region",
+                        ":",
+                        !Ref "AWS::AccountId",
+                        ":log-group:/aws/sagemaker/NotebookInstances:log-stream:*",
+                      ],
+                    ]
+              - Sid: LogEvents
+                Effect: Allow
+                Action:
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                Resource:
+                  - !Join [
+                      "",
+                      [
+                        !Sub "arn:${IAMPartition}:logs:",
+                        !Ref "AWS::Region",
+                        ":",
+                        !Ref "AWS::AccountId",
+                        ":log-group:/aws/sagemaker/NotebookInstances:log-stream:",
+                        !Ref "AWS::StackName",
+                        "-NotebookInstance-",
+                        "{{resolve:secretsmanager:",
+                        !Ref RandomString,
+                        ":SecretString:password}}",
+                        "/jupyter.log",
+                      ],
+                    ]
+                  - !Join [
+                      "",
+                      [
+                        !Sub "arn:${IAMPartition}:logs:",
+                        !Ref "AWS::Region",
+                        ":",
+                        !Ref "AWS::AccountId",
+                        ":log-group:/aws/sagemaker/NotebookInstances:log-stream:",
+                        !Ref "AWS::StackName",
+                        "-NotebookInstance-",
+                        "{{resolve:secretsmanager:",
+                        !Ref RandomString,
+                        ":SecretString:password}}",
+                        "/LifecycleConfigOnCreate",
+                      ],
+                    ]
+                  - !Join [
+                      "",
+                      [
+                        !Sub "arn:${IAMPartition}:logs:",
+                        !Ref "AWS::Region",
+                        ":",
+                        !Ref "AWS::AccountId",
+                        ":log-group:/aws/batch/job:log-stream:job-queue-",
+                      ],
+                    ]
+              - Sid: LogGroup
+                Effect: Allow
+                Action:
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:CreateLogGroup
+                Resource: "*"
         - PolicyName: SageMakerPermissions
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: SageMakerNotebook
               Effect: "Allow"
@@ -725,15 +848,15 @@ Resources:
                 - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance-lifecycle-config/basic*"
         - PolicyName: CustomS3ListAccess
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: BucketAccess
               Effect: Allow
               Action: s3:ListBucket
-              Resource: !GetAtt 'MetaflowS3Bucket.Arn'
+              Resource: !GetAtt "MetaflowS3Bucket.Arn"
         - PolicyName: CustomS3Access
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: ObjectAccess
               Effect: Allow
@@ -741,29 +864,29 @@ Resources:
                 - s3:PutObject
                 - s3:GetObject
                 - s3:DeleteObject
-              Resource: !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+              Resource: !Join ["", [!GetAtt "MetaflowS3Bucket.Arn", "/*"]]
         - PolicyName: DenyPresigned
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: DenyPresigned
               Effect: Deny
               Action: s3:*
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringNotEquals:
                   s3:authType: REST-HEADER
   MetaflowUserRole:
-    Condition: 'EnableRole'
+    Condition: "EnableRole"
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
             AWS:
-              - !GetAtt 'MetadataSvcECSTaskRole.Arn'
+              - !GetAtt "MetadataSvcECSTaskRole.Arn"
           Action:
             - sts:AssumeRole
       Path: /
@@ -783,8 +906,8 @@ Resources:
                 Action:
                   - "s3:*Object"
                 Resource:
-                  - !GetAtt 'MetaflowS3Bucket.Arn'
-                  - !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+                  - !GetAtt "MetaflowS3Bucket.Arn"
+                  - !Join ["", [!GetAtt "MetaflowS3Bucket.Arn", "/*"]]
               - Effect: "Allow"
                 Action:
                   - "sagemaker:DescribeNotebook*"
@@ -808,36 +931,36 @@ Resources:
                   - !Sub "arn:${IAMPartition}:kms:${AWS::Region}:${AWS::AccountId}:key/"
         - PolicyName: BatchPerms
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: JobsPermissions
-              Effect: Allow
-              Action:
-                - "batch:TerminateJob"
-                - "batch:DescribeJobs"
-                - "batch:DescribeJobDefinitions"
-                - "batch:DescribeJobQueues"
-                - "batch:RegisterJobDefinition"
-                - "batch:DescribeComputeEnvironments"
-              Resource: '*'
-            - Sid: DefinitionsPermissions
-              Effect: Allow
-              Action:
-                - "batch:SubmitJob"
-              Resource:
-                - !Ref "JobQueue"
-                - !Sub arn:${IAMPartition}:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
+              - Sid: JobsPermissions
+                Effect: Allow
+                Action:
+                  - "batch:TerminateJob"
+                  - "batch:DescribeJobs"
+                  - "batch:DescribeJobDefinitions"
+                  - "batch:DescribeJobQueues"
+                  - "batch:RegisterJobDefinition"
+                  - "batch:DescribeComputeEnvironments"
+                Resource: "*"
+              - Sid: DefinitionsPermissions
+                Effect: Allow
+                Action:
+                  - "batch:SubmitJob"
+                Resource:
+                  - !Ref "JobQueue"
+                  - !Sub arn:${IAMPartition}:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
         - PolicyName: CustomS3ListAccess
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: BucketAccess
               Effect: Allow
               Action: s3:ListBucket
-              Resource: !GetAtt 'MetaflowS3Bucket.Arn'
+              Resource: !GetAtt "MetaflowS3Bucket.Arn"
         - PolicyName: LogPerms
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: GetLogs
               Effect: Allow
@@ -845,38 +968,38 @@ Resources:
               Resource: !Sub arn:${IAMPartition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:log-stream:*
         - PolicyName: AllowSagemaker
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: AllowSagemakerCreate
-              Effect: Allow
-              Action: sagemaker:CreateTrainingJob
-              Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
-            - Sid: AllowSagemakerDescribe
-              Effect: Allow
-              Action: sagemaker:DescribeTrainingJob
-              Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
+              - Sid: AllowSagemakerCreate
+                Effect: Allow
+                Action: sagemaker:CreateTrainingJob
+                Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
+              - Sid: AllowSagemakerDescribe
+                Effect: Allow
+                Action: sagemaker:DescribeTrainingJob
+                Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
         - PolicyName: AllowStepFunctions
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: TasksAndExecutionsGlobal
-              Effect: Allow
-              Action:
-                - "states:ListStateMachines"
-              Resource: '*'
-            - Sid: StateMachines
-              Effect: Allow
-              Action:
-                - "states:DescribeStateMachine"
-                - "states:UpdateStateMachine"
-                - "states:StartExecution"
-                - "states:CreateStateMachine"
-                - "states:ListExecutions"
-                - "states:StopExecution"
-              Resource: !Sub 'arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*'
+              - Sid: TasksAndExecutionsGlobal
+                Effect: Allow
+                Action:
+                  - "states:ListStateMachines"
+                Resource: "*"
+              - Sid: StateMachines
+                Effect: Allow
+                Action:
+                  - "states:DescribeStateMachine"
+                  - "states:UpdateStateMachine"
+                  - "states:StartExecution"
+                  - "states:CreateStateMachine"
+                  - "states:ListExecutions"
+                  - "states:StopExecution"
+                Resource: !Sub "arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
         - PolicyName: AllowEventBridge
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Sid: RuleMaintenance
                 Effect: Allow
@@ -893,7 +1016,7 @@ Resources:
                   "Null":
                     events:source: true
   MetaflowUserPolicy:
-    Condition: 'EnableRole'
+    Condition: "EnableRole"
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -910,8 +1033,8 @@ Resources:
             Action:
               - "s3:*Object"
             Resource:
-              - !GetAtt 'MetaflowS3Bucket.Arn'
-              - !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+              - !GetAtt "MetaflowS3Bucket.Arn"
+              - !Join ["", [!GetAtt "MetaflowS3Bucket.Arn", "/*"]]
           - Effect: "Allow"
             Action:
               - "sagemaker:DescribeNotebook*"
@@ -942,7 +1065,7 @@ Resources:
               - "batch:DescribeJobQueues"
               - "batch:RegisterJobDefinition"
               - "batch:DescribeComputeEnvironments"
-            Resource: '*'
+            Resource: "*"
           - Sid: DefinitionsPermissions
             Effect: Allow
             Action:
@@ -953,7 +1076,7 @@ Resources:
           - Sid: BucketAccess
             Effect: Allow
             Action: s3:ListBucket
-            Resource: !GetAtt 'MetaflowS3Bucket.Arn'
+            Resource: !GetAtt "MetaflowS3Bucket.Arn"
           - Sid: GetLogs
             Effect: Allow
             Action: logs:GetLogEvents
@@ -970,7 +1093,7 @@ Resources:
             Effect: Allow
             Action:
               - "states:ListStateMachines"
-            Resource: '*'
+            Resource: "*"
           - Sid: StateMachines
             Effect: Allow
             Action:
@@ -980,7 +1103,7 @@ Resources:
               - "states:CreateStateMachine"
               - "states:ListExecutions"
               - "states:StopExecution"
-            Resource: !Sub 'arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*'
+            Resource: !Sub "arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
           - Sid: RuleMaintenance
             Effect: Allow
             Action:
@@ -999,7 +1122,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -1011,18 +1134,18 @@ Resources:
       Policies:
         - PolicyName: AllowStepFunctions
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Sid: ExecuteStepFunction
                 Effect: Allow
                 Action:
-                  - 'states:StartExecution'
-                Resource: !Sub 'arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*'
+                  - "states:StartExecution"
+                Resource: !Sub "arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*"
   StepFunctionsRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -1034,42 +1157,42 @@ Resources:
       Policies:
         - PolicyName: BatchPerms
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: JobsPermissions
-              Effect: Allow
-              Action:
-                - "batch:TerminateJob"
-                - "batch:DescribeJobs"
-                - "batch:DescribeJobDefinitions"
-                - "batch:DescribeJobQueues"
-                - "batch:RegisterJobDefinition"
-              Resource: '*'
-            - Sid: DefinitionsPermissions
-              Effect: Allow
-              Action:
-                - "batch:SubmitJob"
-              Resource:
-                - !Ref "JobQueue"
-                - !Sub arn:${IAMPartition}:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
+              - Sid: JobsPermissions
+                Effect: Allow
+                Action:
+                  - "batch:TerminateJob"
+                  - "batch:DescribeJobs"
+                  - "batch:DescribeJobDefinitions"
+                  - "batch:DescribeJobQueues"
+                  - "batch:RegisterJobDefinition"
+                Resource: "*"
+              - Sid: DefinitionsPermissions
+                Effect: Allow
+                Action:
+                  - "batch:SubmitJob"
+                Resource:
+                  - !Ref "JobQueue"
+                  - !Sub arn:${IAMPartition}:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
         - PolicyName: CustomS3Access
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: BucketAccess
-              Effect: Allow
-              Action: s3:ListBucket
-              Resource: !GetAtt 'MetaflowS3Bucket.Arn'
-            - Sid: ObjectAccess
-              Effect: "Allow"
-              Action:
-                - "s3:*Object"
-              Resource:
-                - !GetAtt 'MetaflowS3Bucket.Arn'
-                - !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+              - Sid: BucketAccess
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt "MetaflowS3Bucket.Arn"
+              - Sid: ObjectAccess
+                Effect: "Allow"
+                Action:
+                  - "s3:*Object"
+                Resource:
+                  - !GetAtt "MetaflowS3Bucket.Arn"
+                  - !Join ["", [!GetAtt "MetaflowS3Bucket.Arn", "/*"]]
         - PolicyName: AllowCloudwatch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Sid: CloudwatchLogDelivery
                 Effect: Allow
@@ -1082,10 +1205,10 @@ Resources:
                   - "logs:PutResourcePolicy"
                   - "logs:DescribeResourcePolicies"
                   - "logs:DescribeLogGroups"
-                Resource: '*'
+                Resource: "*"
         - PolicyName: AllowEventBridge
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Sid: RuleMaintenance
                 Effect: Allow
@@ -1103,66 +1226,74 @@ Resources:
                     events:detail-type: "Batch Job State Change"
         - PolicyName: DynamoDB
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: Items
-              Effect: Allow
-              Action:
-                - "dynamodb:PutItem"
-                - "dynamodb:GetItem"
-                - "dynamodb:UpdateItem"
-              Resource: !Sub arn:${IAMPartition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${StepFunctionsStateDDB}
+              - Sid: Items
+                Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:UpdateItem"
+                Resource: !Sub arn:${IAMPartition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${StepFunctionsStateDDB}
   BasicNotebookInstanceLifecycleConfig:
-    Condition: 'EnableSagemaker'
+    Condition: "EnableSagemaker"
     Type: "AWS::SageMaker::NotebookInstanceLifecycleConfig"
     Properties:
       OnCreate:
         - Content:
-            Fn::Base64:
-              !Sub |
-                #!/bin/bash
-                echo 'export METAFLOW_DATASTORE_SYSROOT_S3=s3://${MetaflowS3Bucket}/metaflow/' >> /etc/profile.d/jupyter-env.sh
-                echo 'export METAFLOW_DATATOOLS_S3ROOT=s3://${MetaflowS3Bucket}/data/' >> /etc/profile.d/jupyter-env.sh
-                echo 'export METAFLOW_SERVICE_URL=http://${NLB.DNSName}/' >> /etc/profile.d/jupyter-env.sh
-                echo 'export AWS_DEFAULT_REGION=${AWS::Region}' >> /etc/profile.d/jupyter-env.sh
-                echo 'export METAFLOW_DEFAULT_DATASTORE=s3' >> /etc/profile.d/jupyter-env.sh
-                echo 'export METAFLOW_DEFAULT_METADATA=service' >> /etc/profile.d/jupyter-env.sh
-                systemctl restart jupyter-server
+            Fn::Base64: !Sub |
+              #!/bin/bash
+              echo 'export METAFLOW_DATASTORE_SYSROOT_S3=s3://${MetaflowS3Bucket}/metaflow/' >> /etc/profile.d/jupyter-env.sh
+              echo 'export METAFLOW_DATATOOLS_S3ROOT=s3://${MetaflowS3Bucket}/data/' >> /etc/profile.d/jupyter-env.sh
+              echo 'export METAFLOW_SERVICE_URL=http://${NLB.DNSName}/' >> /etc/profile.d/jupyter-env.sh
+              echo 'export AWS_DEFAULT_REGION=${AWS::Region}' >> /etc/profile.d/jupyter-env.sh
+              echo 'export METAFLOW_DEFAULT_DATASTORE=s3' >> /etc/profile.d/jupyter-env.sh
+              echo 'export METAFLOW_DEFAULT_METADATA=service' >> /etc/profile.d/jupyter-env.sh
+              systemctl restart jupyter-server
       OnStart:
         - Content:
-            Fn::Base64:
-              !Sub |
-                #!/bin/bash
-                set -e
-                sudo -u ec2-user -i <<'EOF'
-                echo "THIS IS A PLACE HOLDER TO EXECUTE - USER LEVEL" >> ~/.customrc
-                EOF
+            Fn::Base64: !Sub |
+              #!/bin/bash
+              set -e
+              sudo -u ec2-user -i <<'EOF'
+              echo "THIS IS A PLACE HOLDER TO EXECUTE - USER LEVEL" >> ~/.customrc
+              EOF
   SageMakerNotebookInstance:
-    Condition: 'EnableSagemaker'
+    Condition: "EnableSagemaker"
     Type: AWS::SageMaker::NotebookInstance
     Properties:
-      NotebookInstanceName: !Join ['', [!Ref 'AWS::StackName', '-NotebookInstance-', '{{resolve:secretsmanager:', !Ref RandomString, ':SecretString:password}}' ]]
+      NotebookInstanceName:
+        !Join [
+          "",
+          [
+            !Ref "AWS::StackName",
+            "-NotebookInstance-",
+            "{{resolve:secretsmanager:",
+            !Ref RandomString,
+            ":SecretString:password}}",
+          ],
+        ]
       InstanceType: !Ref SagemakerInstance
-      RoleArn: !GetAtt 'SageMakerExecutionRole.Arn'
-      LifecycleConfigName: !GetAtt 'BasicNotebookInstanceLifecycleConfig.NotebookInstanceLifecycleConfigName'
+      RoleArn: !GetAtt "SageMakerExecutionRole.Arn"
+      LifecycleConfigName: !GetAtt "BasicNotebookInstanceLifecycleConfig.NotebookInstanceLifecycleConfigName"
       SubnetId: !Ref Subnet1
       SecurityGroupIds:
-        - !Ref 'SagemakerSecurityGroup'
+        - !Ref "SagemakerSecurityGroup"
   RandomString:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Description: 'Random String'
+      Description: "Random String"
       GenerateSecretString:
         SecretStringTemplate: '{"username": "admin"}'
-        GenerateStringKey: 'password'
-        ExcludePunctuation: 'true'
+        GenerateStringKey: "password"
+        ExcludePunctuation: "true"
         PasswordLength: 8
         ExcludeCharacters: '"@/\'
   BatchS3TaskRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -1174,20 +1305,20 @@ Resources:
       ManagedPolicyArns:
         - !If
           - EnableAddtionalWorkerPolicy
-          - !Ref 'AdditionalWorkerPolicyArn'
+          - !Ref "AdditionalWorkerPolicyArn"
           - !Ref AWS::NoValue
       Policies:
         - PolicyName: CustomS3ListBatch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: BucketAccessBatch
               Effect: Allow
               Action: s3:ListBucket
-              Resource: !GetAtt 'MetaflowS3Bucket.Arn'
+              Resource: !GetAtt "MetaflowS3Bucket.Arn"
         - PolicyName: CustomS3Batch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: ObjectAccessBatch
               Effect: Allow
@@ -1195,80 +1326,80 @@ Resources:
                 - s3:PutObject
                 - s3:GetObject
                 - s3:DeleteObject
-              Resource: !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+              Resource: !Join ["", [!GetAtt "MetaflowS3Bucket.Arn", "/*"]]
         - PolicyName: DenyPresignedBatch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: DenyPresignedBatch
               Effect: Deny
               Action: s3:*
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringNotEquals:
                   s3:authType: REST-HEADER
         - PolicyName: AllowSagemaker
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: AllowSagemakerCreate
-              Effect: Allow
-              Action: sagemaker:CreateTrainingJob
-              Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
-            - Sid: AllowSagemakerDescribe
-              Effect: Allow
-              Action: sagemaker:DescribeTrainingJob
-              Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
-            - Sid: AllowSagemakerDeploy
-              Effect: Allow
-              Action:
-                - "sagemaker:CreateModel"
-                - "sagemaker:CreateEndpointConfig"
-                - "sagemaker:CreateEndpoint"
-                - "sagemaker:DescribeModel"
-                - "sagemaker:DescribeEndpoint"
-                - "sagemaker:InvokeEndpoint"
-              Resource:
-                - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint/*"
-                - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:model/*"
-                - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint-config/*"
+              - Sid: AllowSagemakerCreate
+                Effect: Allow
+                Action: sagemaker:CreateTrainingJob
+                Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
+              - Sid: AllowSagemakerDescribe
+                Effect: Allow
+                Action: sagemaker:DescribeTrainingJob
+                Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
+              - Sid: AllowSagemakerDeploy
+                Effect: Allow
+                Action:
+                  - "sagemaker:CreateModel"
+                  - "sagemaker:CreateEndpointConfig"
+                  - "sagemaker:CreateEndpoint"
+                  - "sagemaker:DescribeModel"
+                  - "sagemaker:DescribeEndpoint"
+                  - "sagemaker:InvokeEndpoint"
+                Resource:
+                  - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint/*"
+                  - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:model/*"
+                  - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:endpoint-config/*"
         - PolicyName: IAM_PASS_ROLE
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: AllowPassRole
               Effect: Allow
               Action: iam:PassRole
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringEquals:
                   iam:PassedToService: sagemaker.amazonaws.com
         - PolicyName: DynamoDB
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: Items
-              Effect: Allow
-              Action:
-                - "dynamodb:PutItem"
-                - "dynamodb:GetItem"
-                - "dynamodb:UpdateItem"
-              Resource: !Sub arn:${IAMPartition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${StepFunctionsStateDDB}
+              - Sid: Items
+                Effect: Allow
+                Action:
+                  - "dynamodb:PutItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:UpdateItem"
+                Resource: !Sub arn:${IAMPartition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${StepFunctionsStateDDB}
         - PolicyName: Cloudwatch
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
-            - Sid: AllowPutLogs
-              Effect: Allow
-              Action:
-                - 'logs:CreateLogStream'
-                - 'logs:PutLogEvents'
-              Resource: '*'
+              - Sid: AllowPutLogs
+                Effect: Allow
+                Action:
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
   BatchExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           Effect: Allow
           Principal:
@@ -1280,12 +1411,12 @@ Resources:
       Policies:
         - PolicyName: IAM_PASS_ROLE
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: VisualEditor0
               Effect: Allow
               Action: iam:PassRole
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringEquals:
                   iam:PassedToService:
@@ -1294,7 +1425,7 @@ Resources:
                     - ecs-tasks.amazonaws.com
         - PolicyName: custom_access_policy
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: VisualEditor2
               Effect: Allow
@@ -1358,28 +1489,28 @@ Resources:
                 - logs:DescribeLogGroups
                 - iam:GetInstanceProfile
                 - iam:GetRole
-              Resource: '*'
+              Resource: "*"
         - PolicyName: iam_custom_policies
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: VisualEditor3
               Effect: Allow
               Action: iam:CreateServiceLinkedRole
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringEquals:
                   iam:AWSServiceName:
-                  - autoscaling.amazonaws.com
-                  - ecs.amazonaws.com
+                    - autoscaling.amazonaws.com
+                    - ecs.amazonaws.com
         - PolicyName: ec2_custom_policies
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               Sid: VisualEditor4
               Effect: Allow
               Action: ec2:CreateTags
-              Resource: '*'
+              Resource: "*"
               Condition:
                 StringEquals:
                   ec2:CreateAction: RunInstances
@@ -1387,19 +1518,31 @@ Resources:
     Type: AWS::Batch::ComputeEnvironment
     Properties:
       Type: MANAGED
-      ServiceRole: !GetAtt 'BatchExecutionRole.Arn'
+      ServiceRole: !GetAtt "BatchExecutionRole.Arn"
       ComputeResources:
         MaxvCpus: !Ref MaxVCPUBatch
         SecurityGroupIds:
           - !GetAtt VPC.DefaultSecurityGroup
-        Type: !If [EnableFargateOnBatch, 'FARGATE', 'EC2']
+        Type: !If [EnableFargateOnBatch, "FARGATE", "EC2"]
         Subnets:
           - !Ref Subnet1
           - !Ref Subnet2
-        MinvCpus: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref MinVCPUBatch]
-        InstanceRole: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !GetAtt 'ECSInstanceProfile.Arn']
-        InstanceTypes: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref ComputeEnvInstanceTypes]
-        DesiredvCpus: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref DesiredVCPUBatch]
+        MinvCpus:
+          !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref MinVCPUBatch]
+        InstanceRole:
+          !If [
+            EnableFargateOnBatch,
+            !Ref AWS::NoValue,
+            !GetAtt "ECSInstanceProfile.Arn",
+          ]
+        InstanceTypes:
+          !If [
+            EnableFargateOnBatch,
+            !Ref AWS::NoValue,
+            !Ref ComputeEnvInstanceTypes,
+          ]
+        DesiredvCpus:
+          !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref DesiredVCPUBatch]
       State: ENABLED
   JobQueue:
     DependsOn: ComputeEnvironment
@@ -1410,38 +1553,38 @@ Resources:
           ComputeEnvironment: !Ref ComputeEnvironment
       State: ENABLED
       Priority: 1
-      JobQueueName: !Join [ "-", [ 'job-queue', !Ref 'AWS::StackName' ] ]
+      JobQueueName: !Join ["-", ["job-queue", !Ref "AWS::StackName"]]
   Api:
     DependsOn: VpcLink
-    Type: 'AWS::ApiGateway::RestApi'
+    Type: "AWS::ApiGateway::RestApi"
     Properties:
       EndpointConfiguration:
         Types:
-          - !If [ IsGov, 'REGIONAL', 'EDGE' ]
-      Name: !Join ['-', [!Ref 'AWS::StackName', 'api'] ]
+          - !If [IsGov, "REGIONAL", "EDGE"]
+      Name: !Join ["-", [!Ref "AWS::StackName", "api"]]
   ApiResource:
-    Type: 'AWS::ApiGateway::Resource'
+    Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt Api.RootResourceId
       RestApiId: !Ref Api
-      PathPart: '{proxy+}'
+      PathPart: "{proxy+}"
   DBApiResource:
-    Type: 'AWS::ApiGateway::Resource'
+    Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt Api.RootResourceId
       RestApiId: !Ref Api
-      PathPart: 'db_schema_status'
+      PathPart: "db_schema_status"
   VpcLink:
-      Type: AWS::ApiGateway::VpcLink
-      Properties:
-          Name: !Join ['-', [!Ref 'AWS::StackName', 'vpclink'] ]
-          TargetArns:
-              - !Ref NLB
+    Type: AWS::ApiGateway::VpcLink
+    Properties:
+      Name: !Join ["-", [!Ref "AWS::StackName", "vpclink"]]
+      TargetArns:
+        - !Ref NLB
   ProxyMethod:
-    Type: 'AWS::ApiGateway::Method'
+    Type: "AWS::ApiGateway::Method"
     Properties:
       HttpMethod: ANY
-      ApiKeyRequired: !If [ EnableAuth, 'true', !Ref "AWS::NoValue" ]
+      ApiKeyRequired: !If [EnableAuth, "true", !Ref "AWS::NoValue"]
       ResourceId: !Ref ApiResource
       RestApiId: !Ref Api
       AuthorizationType: NONE
@@ -1451,20 +1594,20 @@ Resources:
         ConnectionType: VPC_LINK
         ConnectionId: !Ref VpcLink
         CacheKeyParameters:
-          - 'method.request.path.proxy'
+          - "method.request.path.proxy"
         RequestParameters:
-          integration.request.path.proxy: 'method.request.path.proxy'
+          integration.request.path.proxy: "method.request.path.proxy"
         IntegrationHttpMethod: ANY
         Type: HTTP_PROXY
-        Uri: !Join ['', ['http://', !GetAtt 'NLB.DNSName', '/{proxy}'] ]
+        Uri: !Join ["", ["http://", !GetAtt "NLB.DNSName", "/{proxy}"]]
         PassthroughBehavior: WHEN_NO_MATCH
         IntegrationResponses:
           - StatusCode: 200
   DBMethod:
-    Type: 'AWS::ApiGateway::Method'
+    Type: "AWS::ApiGateway::Method"
     Properties:
       HttpMethod: GET
-      ApiKeyRequired: !If [ EnableAuth, 'true', !Ref "AWS::NoValue" ]
+      ApiKeyRequired: !If [EnableAuth, "true", !Ref "AWS::NoValue"]
       ResourceId: !Ref DBApiResource
       RestApiId: !Ref Api
       AuthorizationType: NONE
@@ -1473,39 +1616,43 @@ Resources:
         ConnectionId: !Ref VpcLink
         IntegrationHttpMethod: GET
         Type: HTTP_PROXY
-        Uri: !Join ['', ['http://', !GetAtt 'NLB.DNSName', ':8082/db_schema_status'] ]
+        Uri:
+          !Join [
+            "",
+            ["http://", !GetAtt "NLB.DNSName", ":8082/db_schema_status"],
+          ]
         PassthroughBehavior: WHEN_NO_MATCH
         IntegrationResponses:
           - StatusCode: 200
   ApiDeployment:
     DependsOn:
       - ProxyMethod
-    Type: 'AWS::ApiGateway::Deployment'
+    Type: "AWS::ApiGateway::Deployment"
     Properties:
       RestApiId: !Ref Api
       StageName: api
   ApiKey:
-    Condition: 'EnableAuth'
-    Type: 'AWS::ApiGateway::ApiKey'
+    Condition: "EnableAuth"
+    Type: "AWS::ApiGateway::ApiKey"
     DependsOn:
       - Api
       - ApiDeployment
     Properties:
-      Name: !Join ['-', [!Ref 'AWS::StackName', ApiKey] ]
-      Enabled: 'true'
+      Name: !Join ["-", [!Ref "AWS::StackName", ApiKey]]
+      Enabled: "true"
   ApiUsagePlan:
-    Condition: 'EnableAuth'
+    Condition: "EnableAuth"
     Type: "AWS::ApiGateway::UsagePlan"
     DependsOn:
       - Api
       - ApiDeployment
     Properties:
       ApiStages:
-      - ApiId: !Ref Api
-        Stage: api
-      UsagePlanName: !Join ["", [{"Ref": "AWS::StackName"}, "-usage-plan"]]
+        - ApiId: !Ref Api
+          Stage: api
+      UsagePlanName: !Join ["", [{ "Ref": "AWS::StackName" }, "-usage-plan"]]
   ApiUsagePlanKey:
-    Condition: 'EnableAuth'
+    Condition: "EnableAuth"
     Type: "AWS::ApiGateway::UsagePlanKey"
     DependsOn:
       - Api
@@ -1528,53 +1675,53 @@ Resources:
         AttributeName: ttl
         Enabled: true
 
-# --- Metaflow UI resources begin ---
+  # --- Metaflow UI resources begin ---
 
   LoadBalancerUI:
-    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Condition: EnableUI
     Properties:
       SecurityGroups:
-      - !Ref LoadBalancerSecurityGroupUI
+        - !Ref LoadBalancerSecurityGroupUI
       Subnets:
         - !Ref Subnet1
         - !Ref Subnet2
       Type: application
   ListenerUI:
-    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
     Condition: EnableUI
     DependsOn:
       - LoadBalancerUI
     Properties:
       Certificates:
-      - CertificateArn: !Ref CertificateArn
+        - CertificateArn: !Ref CertificateArn
       DefaultActions: # 1. Authenticate against Cognito User Pool
-      - Type: 'authenticate-cognito'
-        AuthenticateCognitoConfig:
-          OnUnauthenticatedRequest: 'authenticate' # Redirect unauthenticated clients to Cognito login page
-          Scope: 'openid'
-          UserPoolArn: !GetAtt 'UserPoolUI.Arn'
-          UserPoolClientId: !Ref UserPoolClientUI
-          UserPoolDomain: !Ref UserPoolDomainUI
-        Order: 1
-      - Type: forward # 2. Forward request to target group (e.g., EC2 instances)
-        TargetGroupArn: !Ref ALBTargetGroupUIStatic
-        Order: 100
+        - Type: "authenticate-cognito"
+          AuthenticateCognitoConfig:
+            OnUnauthenticatedRequest: "authenticate" # Redirect unauthenticated clients to Cognito login page
+            Scope: "openid"
+            UserPoolArn: !GetAtt "UserPoolUI.Arn"
+            UserPoolClientId: !Ref UserPoolClientUI
+            UserPoolDomain: !Ref UserPoolDomainUI
+          Order: 1
+        - Type: forward # 2. Forward request to target group (e.g., EC2 instances)
+          TargetGroupArn: !Ref ALBTargetGroupUIStatic
+          Order: 100
       LoadBalancerArn: !Ref LoadBalancerUI
       Port: 443
-      Protocol: 'HTTPS'
+      Protocol: "HTTPS"
   ListenerRuleUIService:
-    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
     Condition: EnableUI
     Properties:
       ListenerArn: !Ref ListenerUI
       Priority: 2
       Actions:
-        - Type: 'authenticate-cognito'
+        - Type: "authenticate-cognito"
           AuthenticateCognitoConfig:
-            OnUnauthenticatedRequest: 'authenticate' # Redirect unauthenticated clients to Cognito login page
-            Scope: 'openid'
-            UserPoolArn: !GetAtt 'UserPoolUI.Arn'
+            OnUnauthenticatedRequest: "authenticate" # Redirect unauthenticated clients to Cognito login page
+            Scope: "openid"
+            UserPoolArn: !GetAtt "UserPoolUI.Arn"
             UserPoolClientId: !Ref UserPoolClientUI
             UserPoolDomain: !Ref UserPoolDomainUI
           Order: 1
@@ -1587,23 +1734,23 @@ Resources:
             Values:
               - "/api/*"
   ALBTargetGroupUIStatic:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
     Condition: EnableUI
     Properties:
-      Port:  !FindInMap ['ServiceInfoUIStatic', 'ContainerPort', 'value']
+      Port: !FindInMap ["ServiceInfoUIStatic", "ContainerPort", "value"]
       Protocol: HTTP
       TargetType: ip
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   ALBUITargetGroupUIService:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
     Condition: EnableUI
     Properties:
-      Port:  !FindInMap ['ServiceInfoUIService', 'ContainerPort', 'value']
+      Port: !FindInMap ["ServiceInfoUIService", "ContainerPort", "value"]
       Protocol: HTTP
       TargetType: ip
       HealthCheckPath: "/api/ping"
       HealthCheckIntervalSeconds: 10
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
   TaskDefinitionUIService:
     Type: AWS::ECS::TaskDefinition
     Condition: EnableUI
@@ -1616,19 +1763,35 @@ Resources:
         SizeInGiB: 100
       RequiresCompatibilities:
         - FARGATE
-      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
-      TaskRoleArn: !GetAtt 'MetadataSvcECSTaskRole.Arn'
+      ExecutionRoleArn: !Ref "ECSTaskExecutionRole"
+      TaskRoleArn: !GetAtt "MetadataSvcECSTaskRole.Arn"
       ContainerDefinitions:
         - Name: !FindInMap ["ServiceInfoUIService", "ServiceName", "value"]
           Environment:
             - Name: "MF_METADATA_DB_HOST"
-              Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
+              Value: !GetAtt "RDSMasterInstance.Endpoint.Address"
             - Name: "MF_METADATA_DB_PORT"
               Value: "5432"
             - Name: "MF_METADATA_DB_USER"
-              Value: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:username}}' ]]
+              Value:
+                !Join [
+                  "",
+                  [
+                    "{{resolve:secretsmanager:",
+                    !Ref MyRDSSecret,
+                    ":SecretString:username}}",
+                  ],
+                ]
             - Name: "MF_METADATA_DB_PSWD"
-              Value: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:password}}' ]]
+              Value:
+                !Join [
+                  "",
+                  [
+                    "{{resolve:secretsmanager:",
+                    !Ref MyRDSSecret,
+                    ":SecretString:password}}",
+                  ],
+                ]
             - Name: "MF_METADATA_DB_NAME"
               Value: "metaflow"
             - Name: "UI_ENABLED"
@@ -1638,18 +1801,31 @@ Resources:
             - Name: MF_DATASTORE_ROOT
               Value: !Sub "s3://${MetaflowS3Bucket}/metaflow"
             - Name: LOGLEVEL
-              Value: 'DEBUG'
+              Value: "DEBUG"
             - Name: METAFLOW_DATASTORE_SYSROOT_S3
               Value: !Sub "s3://${MetaflowS3Bucket}/metaflow"
             - Name: METAFLOW_SERVICE_URL
-              Value: !Join ['', [ "http://localhost:", !FindInMap ['ServiceInfoUIService', 'ContainerPort', 'value'], "/api/metadata" ]]
+              Value:
+                !Join [
+                  "",
+                  [
+                    "http://localhost:",
+                    !FindInMap [
+                      "ServiceInfoUIService",
+                      "ContainerPort",
+                      "value",
+                    ],
+                    "/api/metadata",
+                  ],
+                ]
             - Name: METAFLOW_DEFAULT_DATASTORE
-              Value: 's3'
+              Value: "s3"
             - Name: METAFLOW_DEFAULT_METADATA
-              Value: 'service'
-          Cpu: !FindInMap ['ServiceInfoUIService', 'ContainerCpu', 'value']
-          Memory: !FindInMap ['ServiceInfoUIService', 'ContainerMemory', 'value']
-          Image: !FindInMap ['ServiceInfoUIService', 'ImageUrl', 'value']
+              Value: "service"
+          Cpu: !FindInMap ["ServiceInfoUIService", "ContainerCpu", "value"]
+          Memory:
+            !FindInMap ["ServiceInfoUIService", "ContainerMemory", "value"]
+          Image: !FindInMap ["ServiceInfoUIService", "ImageUrl", "value"]
           Command:
             [
               "/opt/latest/bin/python3",
@@ -1694,106 +1870,129 @@ Resources:
     DependsOn:
       - ListenerRuleUIService
     Properties:
-      ServiceName: !FindInMap ['ServiceInfoUIService', 'ServiceName', 'value']
-      Cluster: !Ref 'ECSCluster'
+      ServiceName: !FindInMap ["ServiceInfoUIService", "ServiceName", "value"]
+      Cluster: !Ref "ECSCluster"
       LaunchType: FARGATE
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 75
-      DesiredCount: !FindInMap ['ServiceInfoUIService', 'DesiredCount', 'value']
+      DesiredCount: !FindInMap ["ServiceInfoUIService", "DesiredCount", "value"]
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref 'FargateSecurityGroup'
+            - !Ref "FargateSecurityGroup"
           Subnets:
-            - !Ref 'Subnet1'
-            - !Ref 'Subnet2'
-      TaskDefinition: !Ref 'TaskDefinitionUIService'
+            - !Ref "Subnet1"
+            - !Ref "Subnet2"
+      TaskDefinition: !Ref "TaskDefinitionUIService"
       LoadBalancers:
-        - ContainerName: !FindInMap ['ServiceInfoUIService', 'ServiceName', 'value']
-          ContainerPort: !FindInMap ['ServiceInfoUIService', 'ContainerPort', 'value']
-          TargetGroupArn: !Ref 'ALBUITargetGroupUIService'
+        - ContainerName:
+            !FindInMap ["ServiceInfoUIService", "ServiceName", "value"]
+          ContainerPort:
+            !FindInMap ["ServiceInfoUIService", "ContainerPort", "value"]
+          TargetGroupArn: !Ref "ALBUITargetGroupUIService"
   TaskDefinitionUIStatic:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
-      Cpu: !FindInMap ['ServiceInfoUIStatic', 'ContainerCpu', 'value']
-      Memory: !FindInMap ['ServiceInfoUIStatic', 'ContainerMemory', 'value']
+      Family: !FindInMap ["ServiceInfoUIStatic", "ServiceName", "value"]
+      Cpu: !FindInMap ["ServiceInfoUIStatic", "ContainerCpu", "value"]
+      Memory: !FindInMap ["ServiceInfoUIStatic", "ContainerMemory", "value"]
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
-      TaskRoleArn: !GetAtt 'MetadataSvcECSTaskRole.Arn'
+      ExecutionRoleArn: !Ref "ECSTaskExecutionRole"
+      TaskRoleArn: !GetAtt "MetadataSvcECSTaskRole.Arn"
       ContainerDefinitions:
-        - Name: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
-          Cpu: !FindInMap ['ServiceInfoUIStatic', 'ContainerCpu', 'value']
-          Memory: !FindInMap ['ServiceInfoUIStatic', 'ContainerMemory', 'value']
-          Image: !FindInMap ['ServiceInfoUIStatic', 'ImageUrl', 'value']
+        - Name: !FindInMap ["ServiceInfoUIStatic", "ServiceName", "value"]
+          Cpu: !FindInMap ["ServiceInfoUIStatic", "ContainerCpu", "value"]
+          Memory: !FindInMap ["ServiceInfoUIStatic", "ContainerMemory", "value"]
+          Image: !FindInMap ["ServiceInfoUIStatic", "ImageUrl", "value"]
           PortMappings:
-            - ContainerPort: !FindInMap ['ServiceInfoUIStatic', 'ContainerPort', 'value']
+            - ContainerPort:
+                !FindInMap ["ServiceInfoUIStatic", "ContainerPort", "value"]
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '-', !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']]]
-              awslogs-region: !Ref 'AWS::Region'
-              awslogs-stream-prefix: 'ecs'
+              awslogs-group:
+                !Join [
+                  "",
+                  [
+                    "/ecs/",
+                    !Ref "AWS::StackName",
+                    "-",
+                    !FindInMap ["ServiceInfoUIStatic", "ServiceName", "value"],
+                  ],
+                ]
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: "ecs"
   ServiceLogGroupUIStatic:
     Type: AWS::Logs::LogGroup
     Condition: EnableUI
     Properties:
-      LogGroupName: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '-', !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']]]
+      LogGroupName:
+        !Join [
+          "",
+          [
+            "/ecs/",
+            !Ref "AWS::StackName",
+            "-",
+            !FindInMap ["ServiceInfoUIStatic", "ServiceName", "value"],
+          ],
+        ]
   ECSFargateServiceUIStatic:
     Type: AWS::ECS::Service
     Condition: EnableUI
     DependsOn:
       - ListenerUI
     Properties:
-      ServiceName: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
-      Cluster: !Ref 'ECSCluster'
+      ServiceName: !FindInMap ["ServiceInfoUIStatic", "ServiceName", "value"]
+      Cluster: !Ref "ECSCluster"
       LaunchType: FARGATE
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 75
-      DesiredCount: !FindInMap ['ServiceInfoUIStatic', 'DesiredCount', 'value']
+      DesiredCount: !FindInMap ["ServiceInfoUIStatic", "DesiredCount", "value"]
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref 'FargateSecurityGroup'
+            - !Ref "FargateSecurityGroup"
           Subnets:
-            - !Ref 'Subnet1'
-            - !Ref 'Subnet2'
-      TaskDefinition: !Ref 'TaskDefinitionUIStatic'
+            - !Ref "Subnet1"
+            - !Ref "Subnet2"
+      TaskDefinition: !Ref "TaskDefinitionUIStatic"
       LoadBalancers:
-        - ContainerName: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
-          ContainerPort: !FindInMap ['ServiceInfoUIStatic', 'ContainerPort', 'value']
-          TargetGroupArn: !Ref 'ALBTargetGroupUIStatic'
+        - ContainerName:
+            !FindInMap ["ServiceInfoUIStatic", "ServiceName", "value"]
+          ContainerPort:
+            !FindInMap ["ServiceInfoUIStatic", "ContainerPort", "value"]
+          TargetGroupArn: !Ref "ALBTargetGroupUIStatic"
   LoadBalancerSecurityGroupUI: # Security Group for Load Balancer allows incoming HTTPS requests
-    Type: 'AWS::EC2::SecurityGroup'
+    Type: "AWS::EC2::SecurityGroup"
     Condition: EnableUI
     Properties:
-      GroupDescription: 'Load Balancer'
-      VpcId: !Ref 'VPC'
+      GroupDescription: "Load Balancer"
+      VpcId: !Ref "VPC"
       SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 443
-        ToPort: 443
-        CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "0.0.0.0/0"
   UserPoolUI:
-    Type: 'AWS::Cognito::UserPool'
+    Type: "AWS::Cognito::UserPool"
     Condition: EnableUI
     Properties:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true # Disable self-registration
         InviteMessageTemplate:
-          EmailSubject: !Sub '${AWS::StackName}: temporary password'
-          EmailMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
-          SMSMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
+          EmailSubject: !Sub "${AWS::StackName}: temporary password"
+          EmailMessage: "Use the username {username} and the temporary password {####} to log in for the first time."
+          SMSMessage: "Use the username {username} and the temporary password {####} to log in for the first time."
       AutoVerifiedAttributes:
-      - email
+        - email
       UsernameAttributes:
-      - email
+        - email
       Policies:
         PasswordPolicy:
           MinimumLength: 16
@@ -1803,29 +2002,29 @@ Resources:
           RequireUppercase: false
           TemporaryPasswordValidityDays: 21
   UserPoolDomainUI: # Provides Cognito Login Page
-    Type: 'AWS::Cognito::UserPoolDomain'
+    Type: "AWS::Cognito::UserPoolDomain"
     Condition: EnableUI
     Properties:
       UserPoolId: !Ref UserPoolUI
-      Domain: !Select [2, !Split ['/', !Ref 'AWS::StackId']] # Generates a unique domain name
+      Domain: !Select [2, !Split ["/", !Ref "AWS::StackId"]] # Generates a unique domain name
   UserPoolClientUI:
-    Type: 'AWS::Cognito::UserPoolClient'
+    Type: "AWS::Cognito::UserPoolClient"
     Condition: EnableUI
     Properties:
       AllowedOAuthFlows:
-      - code # Required for ALB authentication
+        - code # Required for ALB authentication
       AllowedOAuthFlowsUserPoolClient: true # Required for ALB authentication
       AllowedOAuthScopes:
-      - email
-      - openid
-      - profile
-      - aws.cognito.signin.user.admin
+        - email
+        - openid
+        - profile
+        - aws.cognito.signin.user.admin
       CallbackURLs:
-      - !Sub https://${LoadBalancerUI.DNSName}/oauth2/idpresponse # Redirects to the ALB
-      - !Sub https://${PublicDomainName}/oauth2/idpresponse # Redirects to the ALB
+        - !Sub https://${LoadBalancerUI.DNSName}/oauth2/idpresponse # Redirects to the ALB
+        - !Sub https://${PublicDomainName}/oauth2/idpresponse # Redirects to the ALB
       GenerateSecret: true
       SupportedIdentityProviders: # Optional: add providers for identity federation
-      - COGNITO
+        - COGNITO
       UserPoolId: !Ref UserPoolUI
 Outputs:
   MetaflowDataStoreS3Url:
@@ -1839,7 +2038,7 @@ Outputs:
     Value: !Ref JobQueue
   ECSJobRoleForBatchJobs:
     Description: Role for AWS Batch to Access Amazon S3 [METAFLOW_ECS_S3_ACCESS_IAM_ROLE]
-    Value: !GetAtt 'BatchS3TaskRole.Arn'
+    Value: !GetAtt "BatchS3TaskRole.Arn"
   ServiceUrl:
     Description: "URL for Metadata Service (Open to Public Access) [METAFLOW_SERVICE_URL]"
     Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com/api/"
@@ -1847,17 +2046,17 @@ Outputs:
     Description: "URL for Metadata Service (Accessible in VPC) [METAFLOW_SERVICE_INTERNAL_URL]"
     Value: !Sub "http://${NLB.DNSName}/"
   ApiKeyId:
-    Condition: 'EnableAuth'
+    Condition: "EnableAuth"
     Description: "API Gateway Key ID for Metadata Service. Fetch Key from AWS Console [METAFLOW_SERVICE_AUTH_KEY]"
-    Value: !Ref 'ApiKey'
+    Value: !Ref "ApiKey"
   MetaflowUserRoleArn:
-    Condition: 'EnableRole'
+    Condition: "EnableRole"
     Description: "IAM Role for Metaflow Stack"
     Value: !GetAtt "MetaflowUserRole.Arn"
   SageMakerNoteBookURL:
-    Condition: 'EnableSagemaker'
+    Condition: "EnableSagemaker"
     Description: URL for SageMaker Notebook Instance
-    Value: !Sub 'https://${SageMakerNotebookInstance.NotebookInstanceName}.notebook.${AWS::Region}.sagemaker.aws/tree'
+    Value: !Sub "https://${SageMakerNotebookInstance.NotebookInstanceName}.notebook.${AWS::Region}.sagemaker.aws/tree"
   EventBridgeRoleArn:
     Description: "IAM Role for Event Bridge [METAFLOW_EVENTS_SFN_ACCESS_IAM_ROLE]"
     Value: !GetAtt "EventBridgeRole.Arn"
