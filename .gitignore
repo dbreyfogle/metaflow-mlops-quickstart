@@ -1,3 +1,8 @@
+# Metaflow
+.metaflow/
+metaflow.s3.*/
+metaflow_card_cache/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

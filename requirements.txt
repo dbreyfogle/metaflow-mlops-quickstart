@@ -1,2 +1,4 @@
 metaflow
 pylint
+pytest-xdist
+numpy
