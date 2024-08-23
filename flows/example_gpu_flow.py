@@ -1,7 +1,7 @@
-from config import BATCH_GPU_QUEUE, CONFIG_DEPS
+from config import BATCH_GPU_QUEUE, CONFIG_DEPS, ECR_PATH
 from metaflow import FlowSpec, batch, pypi, pypi_base, step
 
-IMAGE = "docker.io/pytorch/pytorch:2.4.0-cuda12.4-cudnn9-runtime"
+IMAGE = f"{ECR_PATH}/pytorch-extras:2.4.0-cuda12.4-cudnn9-runtime"
 
 
 @pypi_base(packages=CONFIG_DEPS)

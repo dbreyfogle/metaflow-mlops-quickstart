@@ -23,7 +23,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+AWS_ACCOUNT_ID = os.getenv("AWS_ACCOUNT_ID")
+AWS_REGION = os.getenv("AWS_REGION")
 CFN_STACK_NAME = os.getenv("CFN_STACK_NAME")
+
+ECR_REGISTRY = f"{AWS_ACCOUNT_ID}.dkr.ecr.{AWS_REGION}.amazonaws.com"
+ECR_NAMESPACE = CFN_STACK_NAME
+ECR_PATH = f"{ECR_REGISTRY}/{ECR_NAMESPACE}"
 
 BATCH_GPU_QUEUE = f"{CFN_STACK_NAME}-gpu"
 
