@@ -3,6 +3,9 @@ import json
 import os
 
 import boto3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MF_CONFIG_VARS_TO_CFN_OUTPUT_KEYS = {
     "METAFLOW_BATCH_JOB_QUEUE": "BatchJobQueueArn",
@@ -34,7 +37,9 @@ def fetch_config_vars(stack_name: str) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-s", "--stack-name", type=str, required=True)
+    parser.add_argument(
+        "-s", "--stack-name", type=str, default=os.getenv("CFN_STACK_NAME")
+    )
     parser.add_argument(
         "-p", "--profile", type=str, default="default", help="Metaflow profile name"
     )

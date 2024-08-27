@@ -2,11 +2,16 @@ import numpy as np
 from metaflow import Runner
 from pytest import approx
 
+from flows.config import METAFLOW_PACKAGE_SUFFIXES
+
 
 def test_example_flow():
-    with Runner("flows/example_flow.py", environment="pypi", decospecs=["batch"]).run(
-        multiplier=5
-    ) as running:
+    with Runner(
+        "flows/example_flow.py",
+        environment="pypi",
+        decospecs=["batch"],
+        env={"METAFLOW_PACKAGE_SUFFIXES": METAFLOW_PACKAGE_SUFFIXES},
+    ).run(multiplier=5) as running:
         multiplier = running.run.data.multiplier
         my_data = running.run.data.my_data
         my_data_tf = running.run.data.my_data_tf
