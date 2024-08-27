@@ -2,7 +2,7 @@ import numpy as np
 from metaflow import Runner
 from pytest import approx
 
-from flows.config import METAFLOW_PACKAGE_SUFFIXES
+from flows.config import METAFLOW_PACKAGE_SUFFIXES, METAFLOW_TEST_NAMESPACE
 
 
 def test_example_flow():
@@ -10,7 +10,10 @@ def test_example_flow():
         "flows/example_flow.py",
         environment="pypi",
         decospecs=["batch"],
-        env={"METAFLOW_PACKAGE_SUFFIXES": METAFLOW_PACKAGE_SUFFIXES},
+        env={
+            "METAFLOW_PACKAGE_SUFFIXES": METAFLOW_PACKAGE_SUFFIXES,
+            "METAFLOW_USER": METAFLOW_TEST_NAMESPACE,
+        },
     ).run(multiplier=5) as running:
         multiplier = running.run.data.multiplier
         my_data = running.run.data.my_data
