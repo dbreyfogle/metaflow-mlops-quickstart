@@ -1,5 +1,0 @@
-metaflow
-pylint
-pytest-xdist
-python-dotenv
-numpy

@@ -24,16 +24,15 @@ all: install configure
 
 .PHONY: install
 install:
-	pip install --upgrade pip
-	pip install -r requirements.txt
+	poetry install --no-interaction --no-root
 
 .PHONY: configure
 configure:
-	python $(CONFIGURE_SCRIPT)
+	poetry run python $(CONFIGURE_SCRIPT)
 
 .PHONY: test
 test:
-	pytest $(TEST_ARGS) $(TEST_DIR)
+	poetry run pytest $(TEST_ARGS) $(TEST_DIR)
 
 .PHONY: clean
 clean:
